@@ -2,16 +2,18 @@ import { ICredentialType, INodeProperties } from 'n8n-workflow';
 
 export class MurfApi implements ICredentialType {
 	name = 'murfApi';
-	displayName = 'Murf API';
-	documentationUrl = 'https://murf.ai/api/docs';
-
+	displayName = 'Murf AI API';
+	documentationUrl = 'https://help.murf.ai/api';
 	properties: INodeProperties[] = [
 		{
-			displayName: 'Test Key',
-			name: 'testKey',
+			displayName: 'API Key',
+			name: 'apiKey',
 			type: 'string',
+			typeOptions: { password: true },
 			default: '',
-			description: 'Test key for development',
+			description:
+				'The API key for Murf AI. You can find your API key in your Murf account settings.',
+			required: true,
 		},
 	];
 }
