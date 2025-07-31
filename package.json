@@ -9,11 +9,11 @@
 	"homepage": "",
 	"author": {
 		"name": "Nilesh Inkane",
-		"email": "nileshinkane@gmail.com"
+		"email": "nilesh.inkane@murf.ai"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/nileshinkane/n8n-nodes-murf.git"
+		"url": "https://github.com/murf-ai/n8n-nodes-murf"
 	},
 	"engines": {
 		"node": ">=20.15"
