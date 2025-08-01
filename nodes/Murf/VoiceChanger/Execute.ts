@@ -1,8 +1,7 @@
 import type { IExecuteFunctions, INodeExecutionData, IHttpRequestMethods } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
-import { createReadStream } from 'fs';
+import { readFileSync } from 'fs';
 import { basename } from 'path';
-import FormData from 'form-data';
 
 export async function executeVoiceChanger(
 	this: IExecuteFunctions,
@@ -21,8 +20,20 @@ export async function executeVoiceChanger(
 	}
 
 	try {
-		const formData = new FormData();
-		formData.append('voice_id', voiceId);
+		let options: any = {
+			method: 'POST' as IHttpRequestMethods,
+			url: 'https://api.murf.ai/v1/voice-changer/convert',
+			headers: {
+				'api-key': credentials.apiKey,
+			},
+			formData: {
+				voice_id: voiceId,
+				format,
+				channel_type: channelType,
+				sample_rate: sampleRate.toString(),
+				encode_output_as_base64: encodeAsBase64.toString(),
+			},
+		};
 
 		// Handle file input
 		if (inputType === 'file') {
@@ -30,49 +41,45 @@ export async function executeVoiceChanger(
 			if (!filePath) {
 				throw new NodeOperationError(this.getNode(), 'No file path provided!');
 			}
-			formData.append('file', createReadStream(filePath), basename(filePath));
+			try {
+				const fileBuffer = readFileSync(filePath);
+				options.formData.file = {
+					value: fileBuffer,
+					options: {
+						filename: basename(filePath),
+					},
+				};
+			} catch (error) {
+				throw new NodeOperationError(
+					this.getNode(),
+					`Failed to read file: ${error.message}`,
+				);
+			}
 		} else {
 			const fileUrl = this.getNodeParameter('fileUrl', itemIndex) as string;
 			if (!fileUrl) {
 				throw new NodeOperationError(this.getNode(), 'No file URL provided!');
 			}
-			formData.append('file_url', fileUrl);
+			options.formData.file_url = fileUrl;
 		}
 
-		// Add parameters
-		formData.append('format', format);
-		formData.append('channel_type', channelType);
-		formData.append('sample_rate', sampleRate.toString());
-		formData.append('encode_as_base64', encodeAsBase64.toString());
-
-		const options = {
-			method: 'POST' as IHttpRequestMethods,
-			url: 'https://api.murf.ai/v1/voice-changer/convert',
-			headers: {
-				'api-key': credentials.apiKey,
-				...formData.getHeaders(),
-			},
-			formData,
-			json: true,
-		};
-
-
 		const response = await this.helpers.request(options);
+		const parsedResponse = typeof response === 'string' ? JSON.parse(response) : response;
 
 		const executionData: INodeExecutionData[] = [{
 			json: {
-				audioFile: response.audio_file,
-				audioLengthInSeconds: response.audio_length_in_seconds,
-				remainingCharacterCount: response.remaining_character_count,
-				encodedAudio: response.encoded_audio,
-				transcription: response.transcription,
+				audioFile: parsedResponse.audio_file,
+				audioLengthInSeconds: parsedResponse.audio_length_in_seconds,
+				remainingCharacterCount: parsedResponse.remaining_character_count,
+				encodedAudio: parsedResponse.encoded_audio,
+				transcription: parsedResponse.transcription,
 			},
 		}];
 
 		return executionData;
 	} catch (error) {
 		if (error.response) {
-			throw new NodeOperationError(this.getNode(), `Murf API error: ${error.response.body.message}`);
+			throw new NodeOperationError(this.getNode(), `Murf API error: ${error}`);
 		}
 		throw error;
 	}

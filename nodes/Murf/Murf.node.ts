@@ -91,7 +91,7 @@ export class Murf implements INodeType {
 						name: 'Convert Voice',
 						value: 'convert',
 						description: 'Change voice characteristics of audio files',
-						action: 'Transfrom audio files',
+						action: 'Change voice of audio files',
 					},
 				],
 				default: 'convert',
