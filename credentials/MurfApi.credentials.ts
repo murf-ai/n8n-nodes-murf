@@ -3,12 +3,14 @@ import {
 	ICredentialTestRequest,
 	ICredentialType,
 	INodeProperties,
+	Icon,
 } from 'n8n-workflow';
 
 export class MurfApi implements ICredentialType {
 	name = 'murfApi';
 	displayName = 'Murf API';
 	documentationUrl = 'https://murf.ai/api/docs/introduction/quickstart';
+	icon: Icon = 'file:murf.svg';
 	properties: INodeProperties[] = [
 		{
 			displayName: 'Murf API Key',
