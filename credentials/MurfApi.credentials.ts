@@ -1,12 +1,17 @@
-import { ICredentialType, INodeProperties } from 'n8n-workflow';
+import {
+	IAuthenticateGeneric,
+	ICredentialTestRequest,
+	ICredentialType,
+	INodeProperties,
+} from 'n8n-workflow';
 
 export class MurfApi implements ICredentialType {
 	name = 'murfApi';
-	displayName = 'Murf AI API';
-	documentationUrl = 'https://help.murf.ai/api';
+	displayName = 'Murf API';
+	documentationUrl = 'https://murf.ai/api/docs/introduction/quickstart';
 	properties: INodeProperties[] = [
 		{
-			displayName: 'API Key',
+			displayName: 'Murf API Key',
 			name: 'apiKey',
 			type: 'string',
 			typeOptions: { password: true },
@@ -16,4 +21,30 @@ export class MurfApi implements ICredentialType {
 			required: true,
 		},
 	];
+
+	authenticate: IAuthenticateGeneric = {
+		type: 'generic',
+		properties: {
+			headers: {
+				'api-key': '={{$credentials.apiKey}}',
+			},
+		},
+	};
+
+	test: ICredentialTestRequest = {
+		request: {
+			method: 'GET',
+			url: 'https://api.murf.ai/v1/speech/voices',
+		},
+		rules: [
+			{
+				type: 'responseSuccessBody',
+				properties: {
+					key: 'voices',
+					value: 'array',
+					message: 'Invalid API key or insufficient permissions for Murf API',
+				},
+			},
+		],
+	};
 }

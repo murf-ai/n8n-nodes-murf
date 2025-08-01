@@ -4,16 +4,18 @@ import type {
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
+
 import { NodeConnectionType } from 'n8n-workflow';
 
 import { textToSpeechDescription, executeTextToSpeech } from './TextToSpeech';
+import { translationDescription, executeTranslation } from './Translations';
+import { voiceChangerDescription, executeVoiceChanger } from './VoiceChanger';
 
 export class Murf implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Murf AI',
 		name: 'murf',
-		icon: 'file:murf.svg',
+		icon: 'file:../murf.svg',
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["resource"] + ": " + $parameter["operation"]}}',
@@ -86,13 +88,13 @@ export class Murf implements INodeType {
 				},
 				options: [
 					{
-						name: 'Coming Soon',
-						value: 'comingSoon',
-						description: 'Voice changer functionality will be available soon',
-						action: 'Coming soon a voice changer',
+						name: 'Convert Voice',
+						value: 'convert',
+						description: 'Change voice characteristics of audio files',
+						action: 'Transfrom audio files',
 					},
 				],
-				default: 'comingSoon',
+				default: 'convert',
 			},
 			{
 				displayName: 'Operation',
@@ -106,13 +108,13 @@ export class Murf implements INodeType {
 				},
 				options: [
 					{
-						name: 'Coming Soon',
-						value: 'comingSoon',
-						description: 'Translation functionality will be available soon',
-						action: 'Coming soon a translations',
+						name: 'Translate',
+						value: 'translate',
+						description: 'Translate text to another language',
+						action: 'Translate text to another language',
 					},
 				],
-				default: 'comingSoon',
+				default: 'translate',
 			},
 			...textToSpeechDescription.map((field) => ({
 				...field,
@@ -120,6 +122,24 @@ export class Murf implements INodeType {
 					show: {
 						resource: ['textToSpeech'],
 						operation: ['generate'],
+					},
+				},
+			})),
+			...voiceChangerDescription.map((field) => ({
+				...field,
+				displayOptions: {
+					show: {
+						resource: ['voiceChanger'],
+						operation: ['convert'],
+					},
+				},
+			})),
+			...translationDescription.map((field) => ({
+				...field,
+				displayOptions: {
+					show: {
+						resource: ['translations'],
+						operation: ['translate'],
 					},
 				},
 			})),
@@ -140,11 +160,14 @@ export class Murf implements INodeType {
 					if (operation === 'generate') {
 						responseData = await executeTextToSpeech.call(this, i);
 					}
-				} else if (resource === 'voiceChanger' || resource === 'translations') {
-					throw new NodeOperationError(
-						this.getNode(),
-						`${resource} functionality is coming soon. Currently only Text to Speech is supported.`,
-					);
+				} else if (resource === 'voiceChanger') {
+					if (operation === 'convert') {
+						responseData = await executeVoiceChanger.call(this, i);
+					}
+				} else if (resource === 'translations') {
+					if (operation === 'translate') {
+						responseData = await executeTranslation.call(this, i);
+					}
 				}
 
 				if (responseData && Array.isArray(responseData)) {
