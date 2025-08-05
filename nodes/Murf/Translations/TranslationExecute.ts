@@ -1,6 +1,6 @@
 import type { IExecuteFunctions, INodeExecutionData, IHttpRequestMethods } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
-
+import { NodeOperationError, NodeApiError } from 'n8n-workflow';
+import type { JsonObject } from 'n8n-workflow';
 export async function executeTranslation(
 	this: IExecuteFunctions,
 	itemIndex: number,
@@ -52,9 +52,10 @@ export async function executeTranslation(
 
 		return executionData;
 	} catch (error) {
-		if (error.response) {
-			throw new NodeOperationError(this.getNode(), `Murf API error: ${error.response.body.message}`);
-		}
+		throw new NodeApiError(this.getNode(), error as JsonObject, {
+			message: 'Failed to translate text with Murf AI',
+			description: (error as Error).message || 'Unknown error occurred',
+		});
 		throw error;
 	}
 }

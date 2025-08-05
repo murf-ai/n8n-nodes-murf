@@ -1,2 +1,2 @@
-export * from './Description';
-export * from './Execute';
+export { translationDescription } from './TranslationDescription';
+export { executeTranslation } from './TranslationExecute';

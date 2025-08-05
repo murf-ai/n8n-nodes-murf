@@ -1,2 +1,2 @@
-export * from './VoiceChangerDescription';
-export * from './VoiceChangerExecute';
+export { voiceChangerDescription } from './VoiceChangerDescription';
+export { executeVoiceChanger } from './VoiceChangerExecute';
