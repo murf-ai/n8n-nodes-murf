@@ -93,18 +93,6 @@ export const textToSpeechDescription: INodeProperties[] = [
 		description: 'Whether to receive audio as Base64 encoded string instead of URL',
 	},
 	{
-		displayName: 'Encode as Base64 with Zero Retention',
-		name: 'encodedAsBase64WithZeroRetention',
-		type: 'boolean',
-		default: false,
-		description: 'Whether to receive audio as Base64 with zero data retention',
-		displayOptions: {
-			show: {
-				encodeAsBase64: [true],
-			},
-		},
-	},
-	{
 		displayName: 'Additional Options',
 		name: 'additionalOptions',
 		type: 'collection',
@@ -138,25 +126,6 @@ export const textToSpeechDescription: INodeProperties[] = [
 				],
 				default: 'MONO',
 				description: 'Audio channel configuration',
-			},
-			{
-				displayName: 'Model Version',
-				name: 'modelVersion',
-				type: 'options',
-				options: [
-					{
-						name: 'GEN2 (Recommended)',
-						value: 'GEN2',
-						description: 'Latest and advanced model with better quality output',
-					},
-					{
-						name: 'GEN1',
-						value: 'GEN1',
-						description: 'Original model version',
-					},
-				],
-				default: 'GEN2',
-				description: 'The model version to use for synthesis',
 			},
 			{
 				displayName: 'Pitch',

@@ -1,7 +1,5 @@
 import type { IExecuteFunctions, INodeExecutionData, IHttpRequestMethods } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
-import { readFileSync } from 'fs';
-import { basename } from 'path';
 
 export async function executeVoiceChanger(
 	this: IExecuteFunctions,
@@ -35,26 +33,15 @@ export async function executeVoiceChanger(
 			},
 		};
 
-		// Handle file input
 		if (inputType === 'file') {
-			const filePath = this.getNodeParameter('file', itemIndex) as string;
-			if (!filePath) {
-				throw new NodeOperationError(this.getNode(), 'No file path provided!');
-			}
-			try {
-				const fileBuffer = readFileSync(filePath);
-				options.formData.file = {
-					value: fileBuffer,
-					options: {
-						filename: basename(filePath),
-					},
-				};
-			} catch (error) {
-				throw new NodeOperationError(
-					this.getNode(),
-					`Failed to read file: ${error.message}`,
-				);
-			}
+			const binaryData = this.helpers.assertBinaryData(itemIndex, 'data');
+			options.formData.file = {
+				value: Buffer.from(binaryData.data, 'base64'),
+				options: {
+					filename: binaryData.fileName,
+					contentType: binaryData.mimeType,
+				},
+			};
 		} else {
 			const fileUrl = this.getNodeParameter('fileUrl', itemIndex) as string;
 			if (!fileUrl) {
@@ -74,6 +61,17 @@ export async function executeVoiceChanger(
 				encodedAudio: parsedResponse.encoded_audio,
 				transcription: parsedResponse.transcription,
 			},
+			binary: parsedResponse.encoded_audio
+				? {
+						data: {
+							data: parsedResponse.encoded_audio,
+							mimeType: `audio/${format.toLowerCase()}`,
+							fileName: `murf_voice_changed.${format.toLowerCase()}`,
+							fileExtension: format.toLowerCase(),
+							fileLength: parsedResponse?.audio_length_in_seconds,
+						},
+					}
+				: undefined,
 		}];
 
 		return executionData;

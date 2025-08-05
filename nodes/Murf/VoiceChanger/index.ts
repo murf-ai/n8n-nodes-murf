@@ -1,2 +1,2 @@
-export * from './Description';
-export * from './Execute';
+export * from './VoiceChangerDescription';
+export * from './VoiceChangerExecute';

@@ -25,16 +25,13 @@ export const voiceChangerDescription: INodeProperties[] = [
 		displayName: 'File',
 		name: 'file',
 		type: 'string',
-		typeOptions: {
-			browse: true,
-		},
+		default: 'data',
 		displayOptions: {
 			show: {
 				inputType: ['file'],
 			},
 		},
-		default: '',
-		description: 'Path to the audio file (supports WAV, MP3, ALAW, ULAW, FLAC)',
+		description: 'The audio file to convert. All major audio formats are supported.',
 	},
 	{
 		displayName: 'File URL',
@@ -110,7 +107,7 @@ export const voiceChangerDescription: INodeProperties[] = [
 		name: 'sampleRate',
 		type: 'options',
 		noDataExpression: true,
-		default: 44100,
+		default: 8000,
 		options: [
 			{
 				name: '8000 Hz',
