@@ -10,6 +10,8 @@ import { NodeConnectionType } from 'n8n-workflow';
 import { textToSpeechDescription, executeTextToSpeech } from './TextToSpeech';
 import { translationDescription, executeTranslation } from './Translations';
 import { voiceChangerDescription, executeVoiceChanger } from './VoiceChanger';
+import { dubbingDescription } from './Dubbing/DubbingDescription';
+import { executeDubbing, checkJobStatus } from './Dubbing/DubbingExecute';
 
 export class Murf implements INodeType {
 	description: INodeTypeDescription = {
@@ -27,6 +29,20 @@ export class Murf implements INodeType {
 			{
 				name: 'murfApi',
 				required: true,
+				displayOptions: {
+					show: {
+						resource: ['textToSpeech', 'voiceChanger', 'translations'],
+					},
+				},
+			},
+			{
+				name: 'murfDubApi',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['dubbing'],
+					},
+				},
 			},
 		],
 		inputs: [NodeConnectionType.Main],
@@ -52,6 +68,11 @@ export class Murf implements INodeType {
 						name: 'Translation',
 						value: 'translations',
 						description: 'Translate content between languages',
+					},
+					{
+						name: 'Dubbing',
+						value: 'dubbing',
+						description: 'Automated dubbing in multiple languages',
 					},
 				],
 				default: 'textToSpeech',
@@ -116,6 +137,46 @@ export class Murf implements INodeType {
 				],
 				default: 'translate',
 			},
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['dubbing'],
+					},
+				},
+				options: [
+					{
+						name: 'Create Dubbing Job',
+						value: 'createJob',
+						description: 'Create a new dubbing job',
+						action: 'Create a dubbing job',
+					},
+					{
+						name: 'Check Job Status',
+						value: 'checkStatus',
+						description: 'Check the status of a dubbing job',
+						action: 'Check dubbing job status',
+					},
+				],
+				default: 'createJob',
+			},
+			{
+				displayName: 'Job ID',
+				name: 'jobId',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['dubbing'],
+						operation: ['checkStatus'],
+					},
+				},
+				default: '',
+				description: 'The ID of the dubbing job to check',
+			},
 			...textToSpeechDescription.map((field) => ({
 				...field,
 				displayOptions: {
@@ -143,6 +204,15 @@ export class Murf implements INodeType {
 					},
 				},
 			})),
+			...dubbingDescription.map((field) => ({
+				...field,
+				displayOptions: {
+					show: {
+						resource: ['dubbing'],
+						operation: ['createJob'],
+					},
+				},
+			})),
 		],
 	};
 
@@ -167,6 +237,12 @@ export class Murf implements INodeType {
 				} else if (resource === 'translations') {
 					if (operation === 'translate') {
 						responseData = await executeTranslation.call(this, i);
+					}
+				} else if (resource === 'dubbing') {
+					if (operation === 'createJob') {
+						responseData = await executeDubbing.call(this, i);
+					} else if (operation === 'checkStatus') {
+						responseData = await checkJobStatus.call(this, i);
 					}
 				}
 

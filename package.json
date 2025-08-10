@@ -33,7 +33,8 @@
 	"n8n": {
 		"n8nNodesApiVersion": 1,
 		"credentials": [
-			"dist/credentials/MurfApi.credentials.js"
+			"dist/credentials/MurfApi.credentials.js",
+			"dist/credentials/MurfDubApi.credentials.js"
 		],
 		"nodes": [
 			"dist/nodes/Murf/Murf.node.js"
