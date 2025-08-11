@@ -25,10 +25,42 @@ export async function executeTextToSpeech(
 	index: number,
 ): Promise<INodeExecutionData[]> {
 	const text = this.getNodeParameter('text', index) as string;
-	const voiceId = this.getNodeParameter('voiceId', index) as string;
+
+
+	const voiceIdParam = this.getNodeParameter('voiceId', index) as any;
+	let voiceId: string;
+	if (typeof voiceIdParam === 'object' && voiceIdParam.value) {
+		voiceId = voiceIdParam.value;
+	} else if (typeof voiceIdParam === 'string') {
+		voiceId = voiceIdParam;
+	} else {
+		throw new NodeApiError(this.getNode(), {
+			message: 'Invalid voice ID parameter',
+			description: 'Please select a valid voice',
+		} as JsonObject);
+	}
+
 	const format = (this.getNodeParameter('format', index) as string).toUpperCase() as AudioFormat;
-	const multiNativeLocale = this.getNodeParameter('multiNativeLocale', index) as string;
+
+
+	const multiNativeLocaleParam = this.getNodeParameter('multiNativeLocale', index) as any;
+	let multiNativeLocale: string = '';
+	if (typeof multiNativeLocaleParam === 'object' && multiNativeLocaleParam.value) {
+		multiNativeLocale = multiNativeLocaleParam.value;
+	} else if (typeof multiNativeLocaleParam === 'string') {
+		multiNativeLocale = multiNativeLocaleParam;
+	}
+
 	const encodeAsBase64 = this.getNodeParameter('encodeAsBase64', index) as boolean;
+
+	// Handle resourceLocator for style
+	const styleParam = this.getNodeParameter('style', index) as any;
+	let style: string = '';
+	if (typeof styleParam === 'object' && styleParam.value) {
+		style = styleParam.value;
+	} else if (typeof styleParam === 'string') {
+		style = styleParam;
+	}
 
 	const additionalOptions = this.getNodeParameter('additionalOptions', index) as IDataObject;
 
@@ -67,6 +99,10 @@ export async function executeTextToSpeech(
 		body.multiNativeLocale = multiNativeLocale;
 	}
 
+	if (style) {
+		body.style = style;
+	}
+
 	if (additionalOptions.channelType) {
 		body.channelType = additionalOptions.channelType;
 	}
@@ -89,10 +125,6 @@ export async function executeTextToSpeech(
 
 	if (additionalOptions.variation !== undefined && additionalOptions.variation !== 1) {
 		body.variation = additionalOptions.variation;
-	}
-
-	if (additionalOptions.style) {
-		body.style = additionalOptions.style;
 	}
 
 	if (additionalOptions.wordDurationsAsOriginalText) {

@@ -46,13 +46,29 @@ export const voiceChangerDescription: INodeProperties[] = [
 		description: 'URL of the audio file (must be publicly accessible)',
 	},
 	{
-		displayName: 'Target Voice',
+		displayName: 'Voice',
+		description: 'Select the voice to use for the voice conversion',
 		name: 'voiceId',
-		type: 'string',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: null },
 		required: true,
-		noDataExpression: true,
-		default: 'en-US-terrell',
-		description: 'The voice ID to convert to (e.g., en-US-terrell). Use GET /v1/speech/voices API to find supported voices.',
+		modes: [
+			{
+				displayName: 'From list',
+				name: 'list',
+				type: 'list',
+				typeOptions: {
+					searchListMethod: 'getVoices',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'ID',
+				name: 'id',
+				type: 'string',
+				placeholder: 'en-US-natalie',
+			},
+		],
 	},
 	{
 		displayName: 'Output Format',

@@ -17,36 +17,74 @@ export const textToSpeechDescription: INodeProperties[] = [
 		placeholder: 'Hello world [pause 1s], welcome to n8n murf node',
 	},
 	{
-		displayName: 'Voice ID',
+		displayName: 'Voice',
+		description: 'Select the voice to use for the speech synthesis',
 		name: 'voiceId',
-		type: 'options',
-		options: [
+		type: 'resourceLocator',
+		default: { mode: 'list', value: null },
+		required: true,
+		modes: [
 			{
-				name: 'Natalie (US English)',
-				value: 'en-US-natalie',
+				displayName: 'From list',
+				name: 'list',
+				type: 'list',
+				typeOptions: {
+					searchListMethod: 'getVoices',
+					searchable: true,
+				},
 			},
 			{
-				name: 'Ruby (UK English)',
-				value: 'en-UK-ruby',
-			},
-			{
-				name: 'Amara (US English)',
-				value: 'en-US-amara',
+				displayName: 'ID',
+				name: 'id',
+				type: 'string',
+				placeholder: 'en-US-natalie',
 			},
 		],
-		default: 'en-US-natalie',
-		required: true,
+	},
+
+	{
+		displayName: 'Output Locale',
+		name: 'multiNativeLocale',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
 		description:
-			'The voice to use for synthesis. Visit https://murf.ai/api/dashboard to discover more voice IDs.',
+			'Language for generated audio. Default value depends on the selected voice.',
+		modes: [
+			{
+				displayName: 'From list',
+				name: 'list',
+				type: 'list',
+				typeOptions: {
+					searchListMethod: 'getSupportedLocales',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'Locale Code',
+				name: 'id',
+				type: 'string',
+				placeholder: 'en-US',
+			},
+		],
 	},
 	{
-		displayName: 'Multi Native Locale',
-		name: 'multiNativeLocale',
-		type: 'string',
-		default: '',
-		description:
-			'Language for generated audio (e.g., "en-US", "es-ES", "en-UK", "fr-FR"). Default value depends on the selected voice.',
-		placeholder: 'en-US',
+		displayName: 'Voice Style',
+		name: 'style',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
+		description: 'The voice style to be used for voiceover generation. Available styles depend on the selected voice and locale.',
+		modes: [
+			{
+				displayName: 'From list',
+				name: 'list',
+				type: 'list',
+				typeOptions: {
+					searchListMethod: 'getAvailableStyles',
+					searchable: true,
+				},
+			},
+
+		],
 	},
 	{
 		displayName: 'Audio Format',
@@ -236,13 +274,6 @@ export const textToSpeechDescription: INodeProperties[] = [
 					minValue: 0,
 					maxValue: 5,
 				},
-			},
-			{
-				displayName: 'Voice Style',
-				name: 'style',
-				type: 'string',
-				default: '',
-				description: 'The voice style to be used for voiceover generation',
 			},
 			{
 				displayName: 'Word Durations as Original Text',

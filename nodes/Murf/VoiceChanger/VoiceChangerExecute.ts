@@ -6,7 +6,18 @@ export async function executeVoiceChanger(
 	itemIndex: number,
 ): Promise<INodeExecutionData[]> {
 	const inputType = this.getNodeParameter('inputType', itemIndex) as string;
-	const voiceId = this.getNodeParameter('voiceId', itemIndex) as string;
+
+
+	const voiceIdParam = this.getNodeParameter('voiceId', itemIndex) as any;
+	let voiceId: string;
+	if (typeof voiceIdParam === 'object' && voiceIdParam.value) {
+		voiceId = voiceIdParam.value;
+	} else if (typeof voiceIdParam === 'string') {
+		voiceId = voiceIdParam;
+	} else {
+		throw new NodeOperationError(this.getNode(), 'Invalid voice ID parameter - please select a valid voice');
+	}
+
 	const format = this.getNodeParameter('format', itemIndex) as string;
 	const channelType = this.getNodeParameter('channelType', itemIndex) as string;
 	const sampleRate = this.getNodeParameter('sampleRate', itemIndex) as number;
