@@ -45,7 +45,8 @@ export async function executeVoiceChanger(
 		};
 
 		if (inputType === 'file') {
-			const binaryData = this.helpers.assertBinaryData(itemIndex, 'data');
+			const binaryPropertyName = this.getNodeParameter('file', itemIndex) as string;
+			const binaryData = this.helpers.assertBinaryData(itemIndex, binaryPropertyName);
 			options.formData.file = {
 				value: Buffer.from(binaryData.data, 'base64'),
 				options: {
