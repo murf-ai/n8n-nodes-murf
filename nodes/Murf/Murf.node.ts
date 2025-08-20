@@ -192,7 +192,9 @@ export class Murf implements INodeType {
 			...voiceChangerDescription.map((field) => ({
 				...field,
 				displayOptions: {
+					...field.displayOptions,
 					show: {
+						...(field.displayOptions?.show || {}),
 						resource: ['voiceChanger'],
 						operation: ['convert'],
 					},
@@ -210,7 +212,9 @@ export class Murf implements INodeType {
 			...dubbingDescription.map((field) => ({
 				...field,
 				displayOptions: {
+					...field.displayOptions,
 					show: {
+						...(field.displayOptions?.show || {}),
 						resource: ['dubbing'],
 						operation: ['createJob'],
 					},
