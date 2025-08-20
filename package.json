@@ -3,7 +3,22 @@
 	"version": "0.1.0",
 	"description": "n8n node for integrating with Murf AI text-to-speech service",
 	"keywords": [
-		"n8n-community-node-package"
+		"n8n-community-node-package",
+		"murf",
+		"murf-ai",
+		"text-to-speech",
+		"tts",
+		"voice-synthesis",
+		"ai-voices",
+		"voice-changer",
+		"voice-conversion",
+		"translation",
+		"language-translation",
+		"video-dubbing",
+		"automated-dubbing",
+		"audio-processing",
+		"speech-synthesis",
+		"n8n"
 	],
 	"license": "MIT",
 	"homepage": "",

@@ -133,10 +133,26 @@ export const dubbingDescription: INodeProperties[] = [
 		description: 'Secret to validate webhook authenticity (optional)',
 	},
 	{
-		displayName: 'Create Project',
-		name: 'createProject',
-		type: 'boolean',
-		default: false,
-		description: 'Whether to create a persistent project (allows editing in Murf UI)',
+		displayName: 'Additional Options',
+		name: 'additionalOptions',
+		type: 'collection',
+		placeholder: 'Add Option',
+		default: {},
+		options: [
+			{
+				displayName: 'Create Project',
+				name: 'createProject',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to create a persistent project (allows editing in Murf UI)',
+			},
+			{
+				displayName: 'Project ID',
+				name: 'projectId',
+				type: 'string',
+				default: '',
+				description: 'ID of the project to associate with this dubbing job',
+			},
+		],
 	},
 ];

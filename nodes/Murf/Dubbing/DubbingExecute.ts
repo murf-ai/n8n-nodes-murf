@@ -14,7 +14,13 @@ export async function executeDubbing(
 	const priority = this.getNodeParameter('priority', itemIndex) as string;
 	const webhookUrl = this.getNodeParameter('webhookUrl', itemIndex) as string;
 	const webhookSecret = this.getNodeParameter('webhookSecret', itemIndex) as string;
-	const createProject = this.getNodeParameter('createProject', itemIndex) as boolean;
+	const additionalOptions = this.getNodeParameter('additionalOptions', itemIndex) as {
+		createProject?: boolean;
+		projectId?: string;
+	};
+
+	const createProject = additionalOptions.createProject || false;
+	const projectId = additionalOptions.projectId;
 
 	const credentials = await this.getCredentials('murfDubApi');
 	if (!credentials) {
@@ -46,6 +52,10 @@ export async function executeDubbing(
 
 		if (webhookSecret) {
 			options.formData.webhook_secret = webhookSecret;
+		}
+
+		if (createProject && projectId) {
+			options.formData.project_id = projectId;
 		}
 
 		if (inputType === 'file') {

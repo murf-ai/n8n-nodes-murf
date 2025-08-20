@@ -48,7 +48,7 @@ export const textToSpeechDescription: INodeProperties[] = [
 		type: 'resourceLocator',
 		default: { mode: 'list', value: '' },
 		description:
-			'Language for generated audio. Default value depends on the selected voice.',
+			'Language for generated audio',
 		modes: [
 			{
 				displayName: 'From list',
