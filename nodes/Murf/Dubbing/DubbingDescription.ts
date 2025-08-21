@@ -124,11 +124,6 @@ export const dubbingDescription: INodeProperties[] = [
 		typeOptions: {
 			password: true,
 		},
-		displayOptions: {
-			show: {
-				webhookUrl: ['', false],
-			},
-		},
 		default: '',
 		description: 'Secret to validate webhook authenticity (optional)',
 	},
