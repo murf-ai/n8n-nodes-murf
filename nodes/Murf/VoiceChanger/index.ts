@@ -1,4 +1,2 @@
-export const voiceChangerDescription = [];
-export const executeVoiceChanger = async () => {
-	throw new Error('Voice Changer functionality is coming soon');
-};
+export { voiceChangerDescription } from './VoiceChangerDescription';
+export { executeVoiceChanger } from './VoiceChangerExecute';

@@ -6,12 +6,12 @@
 	"resources": {
 		"credentialDocumentation": [
 			{
-				"url": "https://help.murf.ai/api"
+				"url": "https://murf.ai/api/docs/introduction/quickstart"
 			}
 		],
 		"primaryDocumentation": [
 			{
-				"url": "https://murf.ai/api/docs"
+				"url": "https://murf.ai/api/docs/introduction/overview"
 			}
 		]
 	}

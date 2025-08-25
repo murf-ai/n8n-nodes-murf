@@ -1,4 +1,2 @@
-export const translationsDescription = [];
-export const executeTranslations = async () => {
-	throw new Error('Translations functionality is coming soon');
-};
+export { translationDescription } from './TranslationDescription';
+export { executeTranslation } from './TranslationExecute';

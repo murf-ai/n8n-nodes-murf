@@ -1,15 +1,89 @@
 import type { IExecuteFunctions, IDataObject, INodeExecutionData, JsonObject } from 'n8n-workflow';
 import { NodeApiError } from 'n8n-workflow';
 
+type AudioFormat = 'WAV' | 'MP3' | 'FLAC' | 'ALAW' | 'ULAW' | 'PCM' | 'OGG';
+type ChannelType = 'MONO' | 'STEREO';
+type SampleRate = 8000 | 24000 | 44100 | 48000;
+
+interface FormatConstraints {
+	channelTypes: ChannelType[];
+	sampleRates: SampleRate[];
+}
+
+const AUDIO_FORMAT_CONSTRAINTS: Record<AudioFormat, FormatConstraints> = {
+	WAV: { channelTypes: ['MONO', 'STEREO'], sampleRates: [8000, 24000, 44100, 48000] },
+	MP3: { channelTypes: ['MONO', 'STEREO'], sampleRates: [8000, 24000, 44100, 48000] },
+	FLAC: { channelTypes: ['MONO', 'STEREO'], sampleRates: [8000, 24000, 44100, 48000] },
+	ALAW: { channelTypes: ['MONO'], sampleRates: [8000] },
+	ULAW: { channelTypes: ['MONO'], sampleRates: [8000] },
+	PCM: { channelTypes: ['MONO', 'STEREO'], sampleRates: [8000, 24000, 44100, 48000] },
+	OGG: { channelTypes: ['MONO', 'STEREO'], sampleRates: [8000, 24000, 44100, 48000] },
+};
+
 export async function executeTextToSpeech(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<INodeExecutionData[]> {
 	const text = this.getNodeParameter('text', index) as string;
-	const voiceId = this.getNodeParameter('voiceId', index) as string;
-	const format = this.getNodeParameter('format', index) as string;
+
+
+	const voiceIdParam = this.getNodeParameter('voiceId', index) as any;
+	let voiceId: string;
+	if (typeof voiceIdParam === 'object' && voiceIdParam.value) {
+		voiceId = voiceIdParam.value;
+	} else if (typeof voiceIdParam === 'string') {
+		voiceId = voiceIdParam;
+	} else {
+		throw new NodeApiError(this.getNode(), {
+			message: 'Invalid voice ID parameter',
+			description: 'Please select a valid voice',
+		} as JsonObject);
+	}
+
+	const format = (this.getNodeParameter('format', index) as string).toUpperCase() as AudioFormat;
+
+
+	const multiNativeLocaleParam = this.getNodeParameter('multiNativeLocale', index) as any;
+	let multiNativeLocale: string = '';
+	if (typeof multiNativeLocaleParam === 'object' && multiNativeLocaleParam.value) {
+		multiNativeLocale = multiNativeLocaleParam.value;
+	} else if (typeof multiNativeLocaleParam === 'string') {
+		multiNativeLocale = multiNativeLocaleParam;
+	}
+
+	const encodeAsBase64 = this.getNodeParameter('encodeAsBase64', index) as boolean;
+
+	// Handle resourceLocator for style
+	const styleParam = this.getNodeParameter('style', index) as any;
+	let style: string = '';
+	if (typeof styleParam === 'object' && styleParam.value) {
+		style = styleParam.value;
+	} else if (typeof styleParam === 'string') {
+		style = styleParam;
+	}
+
 	const additionalOptions = this.getNodeParameter('additionalOptions', index) as IDataObject;
-	const multiNativeLocale = this.getNodeParameter('multiNativeLocale', index) as string;
+
+	if (!AUDIO_FORMAT_CONSTRAINTS[format]) {
+		throw new NodeApiError(this.getNode(), {
+			message: `Invalid audio format: ${format}`,
+			description: `Supported formats are: ${Object.keys(AUDIO_FORMAT_CONSTRAINTS).join(', ')}`,
+		} as JsonObject);
+	}
+
+	if (additionalOptions.channelType && !AUDIO_FORMAT_CONSTRAINTS[format].channelTypes.includes(additionalOptions.channelType as ChannelType)) {
+		throw new NodeApiError(this.getNode(), {
+			message: `Invalid channel type for ${format}: ${additionalOptions.channelType}`,
+			description: `Supported channel types for ${format} are: ${AUDIO_FORMAT_CONSTRAINTS[format].channelTypes.join(', ')}`,
+		} as JsonObject);
+	}
+
+	if (additionalOptions.sampleRate && !AUDIO_FORMAT_CONSTRAINTS[format].sampleRates.includes(additionalOptions.sampleRate as SampleRate)) {
+		throw new NodeApiError(this.getNode(), {
+			message: `Invalid sample rate for ${format}: ${additionalOptions.sampleRate}`,
+			description: `Supported sample rates for ${format} are: ${AUDIO_FORMAT_CONSTRAINTS[format].sampleRates.join(', ')}`,
+		} as JsonObject);
+	}
 
 	const credentials = await this.getCredentials('murfApi');
 
@@ -17,11 +91,16 @@ export async function executeTextToSpeech(
 		text,
 		voiceId,
 		format,
-		modelVersion: (additionalOptions.modelVersion as string) || 'GEN2',
+		encodeAsBase64,
+		modelVersion: 'GEN2',
 	};
 
 	if (multiNativeLocale) {
 		body.multiNativeLocale = multiNativeLocale;
+	}
+
+	if (style) {
+		body.style = style;
 	}
 
 	if (additionalOptions.channelType) {
@@ -46,18 +125,6 @@ export async function executeTextToSpeech(
 
 	if (additionalOptions.variation !== undefined && additionalOptions.variation !== 1) {
 		body.variation = additionalOptions.variation;
-	}
-
-	if (additionalOptions.style) {
-		body.style = additionalOptions.style;
-	}
-
-	if (additionalOptions.encodeAsBase64) {
-		body.encodeAsBase64 = additionalOptions.encodeAsBase64;
-	}
-
-	if (additionalOptions.encodedAsBase64WithZeroRetention) {
-		body.encodedAsBase64WithZeroRetention = additionalOptions.encodedAsBase64WithZeroRetention;
 	}
 
 	if (additionalOptions.wordDurationsAsOriginalText) {
@@ -87,10 +154,12 @@ export async function executeTextToSpeech(
 		headers: {
 			'Content-Type': 'application/json',
 			'api-key': credentials.apiKey as string,
+			'accept-encoding': 'gzip',
 		},
 		body: JSON.stringify(body),
 		uri: 'https://api.murf.ai/v1/speech/generate',
 		json: true,
+		gzip: true,
 	};
 
 	try {
@@ -107,19 +176,16 @@ export async function executeTextToSpeech(
 					encodedAudio: response.encodedAudio,
 					warning: response.warning,
 					request: {
-						text,
-						voiceId,
-						format,
-						modelVersion: (additionalOptions.modelVersion as string) || 'GEN2',
-						...additionalOptions,
+						...body,
 					},
 				},
 				binary: response.encodedAudio
 					? {
-							audio: {
+							data: {
 								data: response.encodedAudio,
 								mimeType: `audio/${format.toLowerCase()}`,
 								fileName: `murf_speech.${format.toLowerCase()}`,
+								fileExtension: format.toLowerCase(),
 							},
 						}
 					: undefined,
