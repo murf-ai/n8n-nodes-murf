@@ -30,6 +30,9 @@
 		"type": "git",
 		"url": "https://github.com/murf-ai/n8n-nodes-murf"
 	},
+	"publishConfig": {
+		"access": "public"
+	},
 	"engines": {
 		"node": ">=20.15"
 	},
@@ -56,6 +59,7 @@
 		]
 	},
 	"devDependencies": {
+		"@types/node": "^24.5.2",
 		"@typescript-eslint/parser": "~8.32.0",
 		"eslint": "^8.57.0",
 		"eslint-plugin-n8n-nodes-base": "^1.16.3",
