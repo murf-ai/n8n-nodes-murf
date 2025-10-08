@@ -24,10 +24,11 @@ export class Murf implements INodeType {
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["resource"] + ": " + $parameter["operation"]}}',
-		description: 'Murf AI APIs to generate speech, dubbing, and more',
+		description: 'Murf AI APIs for speech synthesis, dubbing, and audio transformation.',
 		defaults: {
 			name: 'Murf AI',
 		},
+		usableAsTool: true,
 		credentials: [
 			{
 				name: 'murfApi',
