@@ -75,11 +75,11 @@ The node requires API credentials from Murf AI:
 
 1. **Murf API** (`murfApi`)
    - Required for Text to Speech, Voice Changer, and Translation operations
-   - Get your API key from [Murf AI Dashboard](https://murf.ai/api)
+   - Get your API key from [Murf API Dashboard](https://murf.ai/api/dashboard)
 
 2. **Murf Dubbing API** (`murfDubApi`)
    - Required for Dubbing operations
-   - Get your Dubbing API key from [Murf Dub](https://dub.murf.ai)
+   - Get your Dubbing API key from [Murf Dub Dashboard](https://dub.murf.ai)
 
 ## Compatibility
 
