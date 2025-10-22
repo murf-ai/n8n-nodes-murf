@@ -56,6 +56,5 @@ export async function executeTranslation(
 			message: 'Failed to translate text with Murf AI',
 			description: (error as Error).message || 'Unknown error occurred',
 		});
-		throw error;
 	}
 }
