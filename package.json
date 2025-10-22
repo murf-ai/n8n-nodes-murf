@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-murf",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "n8n node for integrating with Murf AI text-to-speech service",
 	"keywords": [
 		"n8n-community-node-package",
