@@ -17,52 +17,45 @@ export async function executeVoiceChanger(
 	} else {
 		throw new NodeOperationError(this.getNode(), 'Invalid voice ID parameter - please select a valid voice');
 	}
-
+	const credentials = await this.getCredentials('murfApi') as any;
+	if (!credentials) {
+		throw new NodeOperationError(this.getNode(), 'No credentials got returned!');
+	}
 	const format = this.getNodeParameter('format', itemIndex) as string;
 	const channelType = this.getNodeParameter('channelType', itemIndex) as string;
 	const sampleRate = this.getNodeParameter('sampleRate', itemIndex) as number;
 	const encodeAsBase64 = this.getNodeParameter('encodeAsBase64', itemIndex) as boolean;
+	const formdata = new FormData();
+	formdata.append('voice_id', voiceId);
+	formdata.append('format', format);
+	formdata.append('channel_type', channelType);
+	formdata.append('sample_rate', sampleRate.toString());
+	formdata.append('encode_output_as_base64', encodeAsBase64.toString());
 
-	const credentials = await this.getCredentials('murfApi');
-	if (!credentials) {
-		throw new NodeOperationError(this.getNode(), 'No credentials got returned!');
+	if (inputType === 'file') {
+		const binaryPropertyName = this.getNodeParameter('file', itemIndex) as string;
+		const binaryData = this.helpers.assertBinaryData(itemIndex, binaryPropertyName);
+
+		const fileBuffer = Buffer.from(binaryData.data, 'base64');
+		formdata.append('file', new Blob([fileBuffer]), binaryData.fileName);
+	}
+	else if (inputType === 'url') {
+		const fileUrl = this.getNodeParameter('fileUrl', itemIndex) as string;
+		formdata.append('file_url', fileUrl);
 	}
 
+
+	const requestOptions: any = {
+		method: 'POST' as IHttpRequestMethods,
+		url: 'https://api.murf.ai/v1/voice-changer/convert',
+		headers: {
+			'api-key': credentials.apiKey,
+		},
+		body: formdata,
+	};
+
 	try {
-		let options: any = {
-			method: 'POST' as IHttpRequestMethods,
-			url: 'https://api.murf.ai/v1/voice-changer/convert',
-			headers: {
-				'api-key': credentials.apiKey,
-			},
-			formData: {
-				voice_id: voiceId,
-				format,
-				channel_type: channelType,
-				sample_rate: sampleRate.toString(),
-				encode_output_as_base64: encodeAsBase64.toString(),
-			},
-		};
-
-		if (inputType === 'file') {
-			const binaryPropertyName = this.getNodeParameter('file', itemIndex) as string;
-			const binaryData = this.helpers.assertBinaryData(itemIndex, binaryPropertyName);
-			options.formData.file = {
-				value: Buffer.from(binaryData.data, 'base64'),
-				options: {
-					filename: binaryData.fileName,
-					contentType: binaryData.mimeType,
-				},
-			};
-		} else {
-			const fileUrl = this.getNodeParameter('fileUrl', itemIndex) as string;
-			if (!fileUrl) {
-				throw new NodeOperationError(this.getNode(), 'No file URL provided!');
-			}
-			options.formData.file_url = fileUrl;
-		}
-
-		const response = await this.helpers.request(options);
+		const response = await this.helpers.httpRequest(requestOptions);
 		const parsedResponse = typeof response === 'string' ? JSON.parse(response) : response;
 
 		const executionData: INodeExecutionData[] = [{

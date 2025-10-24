@@ -157,13 +157,13 @@ export async function executeTextToSpeech(
 			'accept-encoding': 'gzip',
 		},
 		body: JSON.stringify(body),
-		uri: 'https://api.murf.ai/v1/speech/generate',
+		url: 'https://api.murf.ai/v1/speech/generate',
 		json: true,
 		gzip: true,
 	};
 
 	try {
-		const response = await this.helpers.request(options);
+		const response = await this.helpers.httpRequest(options);
 
 		return [
 			{

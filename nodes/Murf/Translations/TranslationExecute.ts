@@ -32,7 +32,7 @@ export async function executeTranslation(
 		};
 
 		// Make API request
-		const response = await this.helpers.request(options);
+		const response = await this.helpers.httpRequest(options);
 
 		// Process the response
 		const executionData: INodeExecutionData[] = [];
