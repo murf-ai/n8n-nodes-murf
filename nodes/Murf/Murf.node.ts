@@ -238,11 +238,11 @@ export class Murf implements INodeType {
 						'api-key': credentials.apiKey as string,
 						'Content-Type': 'application/json',
 					},
-					uri: 'https://api.murf.ai/v1/speech/voices',
+					url: 'https://api.murf.ai/v1/speech/voices',
 					json: true,
 				};
 
-				const voicesResponse = await this.helpers.request(options);
+				const voicesResponse = await this.helpers.httpRequest(options);
 
 				let voices: INodePropertyOptions[] = [];
 
@@ -301,11 +301,11 @@ export class Murf implements INodeType {
 						'api-key': credentials.apiKey as string,
 						'Content-Type': 'application/json',
 					},
-					uri: 'https://api.murf.ai/v1/speech/voices',
+					url: 'https://api.murf.ai/v1/speech/voices',
 					json: true,
 				};
 
-				const voicesResponse = await this.helpers.request(options);
+				const voicesResponse = await this.helpers.httpRequest(options);
 
 				if (Array.isArray(voicesResponse)) {
 					const selectedVoice = voicesResponse.find((voice) => voice.voiceId === selectedVoiceId);
@@ -401,11 +401,11 @@ export class Murf implements INodeType {
 						'api-key': credentials.apiKey as string,
 						'Content-Type': 'application/json',
 					},
-					uri: 'https://api.murf.ai/v1/speech/voices',
+					url: 'https://api.murf.ai/v1/speech/voices',
 					json: true,
 				};
 
-				const voicesResponse = await this.helpers.request(options);
+				const voicesResponse = await this.helpers.httpRequest(options);
 
 				if (Array.isArray(voicesResponse)) {
 					const selectedVoice = voicesResponse.find((voice) => voice.voiceId === selectedVoiceId);

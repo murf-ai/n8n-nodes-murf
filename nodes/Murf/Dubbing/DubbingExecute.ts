@@ -32,51 +32,48 @@ export async function executeDubbing(
 			? 'https://api.murf.ai/v1/murfdub/jobs/create-with-project-id'
 			: 'https://api.murf.ai/v1/murfdub/jobs/create';
 
+		const formData = new FormData();
+
+		formData.append('target_locales', targetLocales);
+		formData.append('file_name', fileName);
+		formData.append('priority', priority);
+		formData.append('dubbing_type', 'AUTOMATED');
+
+		if (webhookUrl) {
+			formData.append('webhook_url', webhookUrl);
+		}
+
+		if (webhookSecret) {
+			formData.append('webhook_secret', webhookSecret);
+		}
+
+		if (createProject && projectId) {
+			formData.append('project_id', projectId);
+		}
+
+		if (inputType === 'file') {
+			const binaryPropertyName = this.getNodeParameter('file', itemIndex) as string;
+			const binaryData = this.helpers.assertBinaryData(itemIndex, binaryPropertyName);
+			const fileBuffer = Buffer.from(binaryData.data, 'base64');
+			formData.append('file', new Blob([fileBuffer]), binaryData.fileName || fileName);
+		} else if (inputType === 'url') {
+			const fileUrl = this.getNodeParameter('fileUrl', itemIndex) as string;
+			if (!fileUrl) {
+				throw new NodeOperationError(this.getNode(), 'No file URL provided!');
+			}
+			formData.append('file_url', fileUrl);
+		}
+
 		let options: any = {
 			method: 'POST' as IHttpRequestMethods,
 			url: endpoint,
 			headers: {
 				'api-key': credentials.apiKey,
 			},
-			formData: {
-				target_locales: targetLocales,
-				file_name: fileName,
-				priority,
-				dubbing_type: 'AUTOMATED',
-			},
+			body: formData,
 		};
 
-		if (webhookUrl) {
-			options.formData.webhook_url = webhookUrl;
-		}
-
-		if (webhookSecret) {
-			options.formData.webhook_secret = webhookSecret;
-		}
-
-		if (createProject && projectId) {
-			options.formData.project_id = projectId;
-		}
-
-		if (inputType === 'file') {
-			const binaryPropertyName = this.getNodeParameter('file', itemIndex) as string;
-			const binaryData = this.helpers.assertBinaryData(itemIndex, binaryPropertyName);
-			options.formData.file = {
-				value: Buffer.from(binaryData.data, 'base64'),
-				options: {
-					filename: binaryData.fileName || fileName,
-					contentType: binaryData.mimeType,
-				},
-			};
-		} else if (inputType === 'url') {
-			const fileUrl = this.getNodeParameter('fileUrl', itemIndex) as string;
-			if (!fileUrl) {
-				throw new NodeOperationError(this.getNode(), 'No file URL provided!');
-			}
-			options.formData.file_url = fileUrl;
-		}
-
-		const response = await this.helpers.request(options);
+		const response = await this.helpers.httpRequest(options);
 		const parsedResponse = typeof response === 'string' ? JSON.parse(response) : response;
 
 		const executionData: INodeExecutionData[] = [{
@@ -172,7 +169,7 @@ export async function checkJobStatus(
 			},
 		};
 
-		const response = await this.helpers.request(options);
+		const response = await this.helpers.httpRequest(options);
 		const parsedResponse = typeof response === 'string' ? JSON.parse(response) : response;
 
 		const executionData: INodeExecutionData[] = [{
